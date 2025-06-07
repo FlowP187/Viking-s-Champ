@@ -1,7 +1,7 @@
 body {
   font-family: Arial, sans-serif;
   margin: 20px;
-  background-image: url('2C25545A-A5BB-43C4-821A-1ADD2FCD11D2.png'); /* Change ce nom si besoin */
+  background-image: url('golf.jpg');
   background-size: cover;
   background-attachment: fixed;
   background-position: center;
@@ -12,17 +12,18 @@ body {
 
 h1 {
   text-align: center;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.85);
   padding: 15px;
   border-radius: 10px;
   display: inline-block;
+  font-size: 2.5em;
+  margin-bottom: 20px;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
   background: rgba(255, 255, 255, 0.9);
-  margin-top: 20px;
 }
 
 th, td {
@@ -40,4 +41,9 @@ button {
   margin-top: 20px;
   padding: 10px 20px;
   font-size: 16px;
+}
+
+thead tr.parcours {
+  background-color: #e0f0ff;
+  font-weight: bold;
 }
