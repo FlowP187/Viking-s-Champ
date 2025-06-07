@@ -1,5 +1,5 @@
 const joueurs = ["Flo", "Matt", "PL", "Viking"];
-const pars = [72, 70, 71, 73];
+const pars = [72, 0, 0, 0];
 
 function initialiserTableau() {
   const tbody = document.getElementById("scoreTable");
