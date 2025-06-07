@@ -1,4 +1,4 @@
-const joueurs = ['Alice', 'Bob', 'Charlie', 'Diana'];
+const joueurs = ['Flo', 'Matt', 'Oliv', 'PL'];
 
 function createRow(joueur) {
   const tr = document.createElement('tr');
