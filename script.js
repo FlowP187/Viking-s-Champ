@@ -23,6 +23,31 @@ function validerScores() {
   calculerTotaux();
 }
 
+function modifierScores() {
+  document.querySelectorAll("input").forEach(input => {
+    input.disabled = false;
+  });
+}
+
+function reinitialiserScores() {
+  if (confirm("Voulez-vous vraiment réinitialiser tous les scores ?")) {
+    document.querySelectorAll("input").forEach(input => {
+      input.value = "";
+      input.disabled = false;
+    });
+
+    localStorage.removeItem("scoresGolf");
+
+    joueurs.forEach(joueur => {
+      document.getElementById(`total-${joueur}`).textContent = "0";
+      document.getElementById(`ecart-${joueur}`).textContent = "E";
+    });
+
+    document.getElementById("classement-liste").innerHTML = "";
+    document.getElementById("total-global").textContent = "";
+  }
+}
+
 function calculerTotaux() {
   joueurs.forEach(joueur => {
     let total = 0;
@@ -58,7 +83,8 @@ function restaurerScores() {
   const scores = JSON.parse(localStorage.getItem("scoresGolf"));
   if (scores) {
     Object.entries(scores).forEach(([key, val]) => {
-      const input = document.querySelector(`input[data-joueur="${key.split('-')[0]}"][data-tour="${key.split('-')[1]}"]`);
+      const [joueur, tour] = key.split("-");
+      const input = document.querySelector(`input[data-joueur="${joueur}"][data-tour="${tour}"]`);
       if (input) input.value = val;
     });
     calculerTotaux();
@@ -89,14 +115,11 @@ function mettreAJourClassement() {
       classe = "podium-1 glow";
 
       if (ecart < 0) {
-        // Confettis 🎉
         confetti({
           particleCount: 150,
           spread: 100,
           origin: { y: 0.6 }
         });
-
-        // Son 🔊
         const audio = document.getElementById("victoire-audio");
         audio.currentTime = 0;
         audio.play();
@@ -121,6 +144,6 @@ function mettreAJourClassement() {
   document.getElementById("total-global").textContent = texteGlobal;
 }
 
-// Initialisation
+// Init
 initialiserTableau();
 restaurerScores();
