@@ -1,5 +1,5 @@
-const joueurs = ['Flo', 'Matt', 'Viking', 'PL'];
-const pars = [72, 70, 71, 73]; // Pars pour les 4 tours
+const joueurs = ['Flo', 'Viking', 'Matt', 'PL'];
+const pars = [72, 72, 72, 72]; // Pars pour les 4 tours
 
 function createRow(joueur) {
   const tr = document.createElement('tr');
@@ -79,6 +79,18 @@ function chargerScores() {
 function resetScores() {
   localStorage.removeItem('golfScores');
   location.reload();
+}
+
+function validerScores() {
+  document.querySelectorAll('input').forEach(input => {
+    input.disabled = true;
+  });
+}
+
+function modifierScores() {
+  document.querySelectorAll('input').forEach(input => {
+    input.disabled = false;
+  });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
