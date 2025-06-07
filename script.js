@@ -1,5 +1,5 @@
 const joueurs = ['Flo', 'Matt', 'Oliv', 'PL'];
-
+const pars = [72, 70, 71, 73]; // Les pars des 4 tours
 function createRow(joueur) {
   const tr = document.createElement('tr');
   tr.innerHTML = `
