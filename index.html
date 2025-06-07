@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Scores de Golf</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>Scores de Golf – Championnat</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <h1>Scores de Golf – Championnat 4 Tours</h1>
@@ -12,18 +11,17 @@
     <thead>
       <tr>
         <th>Joueur</th>
-        <th>Tour 1</th>
-        <th>Tour 2</th>
-        <th>Tour 3</th>
-        <th>Tour 4</th>
-        <th>Total</th>
+        <th>T1</th><th>É1</th>
+        <th>T2</th><th>É2</th>
+        <th>T3</th><th>É3</th>
+        <th>T4</th><th>É4</th>
+        <th>Total</th><th>Écart</th>
       </tr>
     </thead>
-    <tbody id="score-table">
-      <!-- Les lignes seront ajoutées dynamiquement -->
-    </tbody>
+    <tbody id="score-table"></tbody>
   </table>
-  <button onclick="resetScores()">Réinitialiser</button>
+  <button onclick="resetScores()">Réinitialiser les scores</button>
+
   <script src="script.js"></script>
 </body>
 </html>
