@@ -1,50 +1,53 @@
-const joueurs = ['Flo', 'Matt', 'Oliv', 'PL'];
-const pars = [72, 70, 71, 73]; // Les pars des 4 tours
-const table = document.getElementById('score-table');
+const joueurs = ['Flo', 'Matt', 'Viking', 'PL'];
+const pars = [72, 70, 71, 73]; // Pars pour les 4 tours
 
-// Ligne des pars
-const parRow = document.createElement('tr');
-parRow.innerHTML = `<td><strong>Par</strong></td>` +
-  pars.map(p => `<td><strong>${p}</strong></td>`).join('') +
-  `<td>—</td><td>—</td>`;
-table.appendChild(parRow);
 function createRow(joueur) {
   const tr = document.createElement('tr');
-  tr.innerHTML = `
-    <td>${joueur}</td>
-    ${[1,2,3,4].map(tour => 
-      `<td><input type="number" min="0" data-joueur="${joueur}" data-tour="${tour}" /></td>`
-    ).join('')}
+  let html = `<td>${joueur}</td>`;
+  for (let tour = 1; tour <= 4; tour++) {
+    html += `
+      <td><input type="number" min="0" data-joueur="${joueur}" data-tour="${tour}" /></td>
+      <td id="ecart-${joueur}-t${tour}">E</td>
+    `;
+  }
+  html += `
     <td id="total-${joueur}">0</td>
+    <td id="ecart-${joueur}">E</td>
   `;
+  tr.innerHTML = html;
   return tr;
 }
-function createRow(joueur) {
+
+function ajouterLignePar() {
   const tr = document.createElement('tr');
-  tr.innerHTML = `
-    <td>${joueur}</td>
-    ${[1,2,3,4].map(tour => 
-      `<td><input type="number" min="0" data-joueur="${joueur}" data-tour="${tour}" /></td>`
-    ).join('')}
-    <td id="total-${joueur}">0</td>
-    <td id="ecart-${joueur}">0</td>
-  `;
-  return tr;
+  tr.innerHTML = `<td><strong>Par</strong></td>` +
+    pars.map(par => `<td colspan="2"><strong>${par}</strong></td>`).join('') +
+    `<td>—</td><td>—</td>`;
+  document.getElementById('score-table').appendChild(tr);
 }
+
 function calculerTotaux() {
   joueurs.forEach(joueur => {
     let total = 0;
     let ecartTotal = 0;
+
     for (let tour = 1; tour <= 4; tour++) {
       const input = document.querySelector(`input[data-joueur="${joueur}"][data-tour="${tour}"]`);
       const val = parseInt(input.value) || 0;
       total += val;
-      ecartTotal += (val - pars[tour - 1]);
+
+      const ecart = val - pars[tour - 1];
+      ecartTotal += ecart;
+
+      const ecartTour = ecart === 0 ? 'E' : (ecart > 0 ? `+${ecart}` : ecart);
+      document.getElementById(`ecart-${joueur}-t${tour}`).textContent = ecartTour;
     }
+
     document.getElementById(`total-${joueur}`).textContent = total;
-    const signe = ecartTotal === 0 ? 'E' : (ecartTotal > 0 ? `+${ecartTotal}` : `${ecartTotal}`);
-    document.getElementById(`ecart-${joueur}`).textContent = signe;
+    const ecartFinal = ecartTotal === 0 ? 'E' : (ecartTotal > 0 ? `+${ecartTotal}` : ecartTotal);
+    document.getElementById(`ecart-${joueur}`).textContent = ecartFinal;
   });
+
   enregistrerScores();
 }
 
@@ -80,6 +83,7 @@ function resetScores() {
 
 document.addEventListener('DOMContentLoaded', () => {
   const table = document.getElementById('score-table');
+  ajouterLignePar();
   joueurs.forEach(joueur => {
     table.appendChild(createRow(joueur));
   });
