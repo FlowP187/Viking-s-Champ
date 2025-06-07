@@ -6,36 +6,38 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Viking’s Cup</h1>
+  <div class="container">
+    <h1>Viking’s Cup</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>Joueur</th>
+          <th>Par</th>
+          <th>Tour 1<br><span class="par">72</span></th>
+          <th>Tour 2<br><span class="par">70</span></th>
+          <th>Tour 3<br><span class="par">71</span></th>
+          <th>Tour 4<br><span class="par">73</span></th>
+          <th>Total</th>
+          <th>Écart</th>
+        </tr>
+      </thead>
+      <tbody id="scoreTable">
+        <!-- Les lignes des joueurs seront générées par JS -->
+      </tbody>
+    </table>
+    
+    <button onclick="validerScores()">Valider</button>
 
-  <table>
-    <thead>
-      <tr class="parcours">
-        <th></th>
-        <th colspan="2">Golf des Dunes</th>
-        <th colspan="2">Ocean Valley</th>
-        <th colspan="2">Pine Ridge</th>
-        <th colspan="2">Cliffs Edge</th>
-        <th></th><th></th>
-      </tr>
-      <tr>
-        <th>Joueur</th>
-        <th>T1</th><th>É1</th>
-        <th>T2</th><th>É2</th>
-        <th>T3</th><th>É3</th>
-        <th>T4</th><th>É4</th>
-        <th>Total</th><th>Écart</th>
-      </tr>
-    </thead>
-    <tbody id="score-table"></tbody>
-  </table>
-
-  <div class="buttons">
-    <button onclick="validerScores()">Valider les scores</button>
-    <button onclick="modifierScores()">Modifier les scores</button>
-    <button onclick="resetScores()">Réinitialiser les scores</button>
+    <div id="classement">
+      <h2>Classement</h2>
+      <ol id="classement-liste"></ol>
+      <p id="total-global" class="global-summary"></p>
+    </div>
   </div>
 
+  <!-- Confetti JS -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <audio id="victoire-audio" src="https://cdn.pixabay.com/audio/2022/03/15/audio_b6b2fc2cb6.mp3"></audio>
   <script src="script.js"></script>
 </body>
 </html>
