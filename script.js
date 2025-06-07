@@ -1,5 +1,13 @@
 const joueurs = ['Flo', 'Matt', 'Oliv', 'PL'];
 const pars = [72, 70, 71, 73]; // Les pars des 4 tours
+const table = document.getElementById('score-table');
+
+// Ligne des pars
+const parRow = document.createElement('tr');
+parRow.innerHTML = `<td><strong>Par</strong></td>` +
+  pars.map(p => `<td><strong>${p}</strong></td>`).join('') +
+  `<td>—</td><td>—</td>`;
+table.appendChild(parRow);
 function createRow(joueur) {
   const tr = document.createElement('tr');
   tr.innerHTML = `
@@ -11,16 +19,31 @@ function createRow(joueur) {
   `;
   return tr;
 }
-
+function createRow(joueur) {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>${joueur}</td>
+    ${[1,2,3,4].map(tour => 
+      `<td><input type="number" min="0" data-joueur="${joueur}" data-tour="${tour}" /></td>`
+    ).join('')}
+    <td id="total-${joueur}">0</td>
+    <td id="ecart-${joueur}">0</td>
+  `;
+  return tr;
+}
 function calculerTotaux() {
   joueurs.forEach(joueur => {
     let total = 0;
+    let ecartTotal = 0;
     for (let tour = 1; tour <= 4; tour++) {
       const input = document.querySelector(`input[data-joueur="${joueur}"][data-tour="${tour}"]`);
       const val = parseInt(input.value) || 0;
       total += val;
+      ecartTotal += (val - pars[tour - 1]);
     }
     document.getElementById(`total-${joueur}`).textContent = total;
+    const signe = ecartTotal === 0 ? 'E' : (ecartTotal > 0 ? `+${ecartTotal}` : `${ecartTotal}`);
+    document.getElementById(`ecart-${joueur}`).textContent = signe;
   });
   enregistrerScores();
 }
