@@ -8,6 +8,7 @@
 <body>
   <div class="container">
     <h1>Viking’s Cup</h1>
+
     <table>
       <thead>
         <tr>
@@ -22,11 +23,15 @@
         </tr>
       </thead>
       <tbody id="scoreTable">
-        <!-- Les lignes des joueurs seront générées par JS -->
+        <!-- Contenu généré par JS -->
       </tbody>
     </table>
-    
-    <button onclick="validerScores()">Valider</button>
+
+    <div class="buttons">
+      <button onclick="validerScores()">Valider</button>
+      <button onclick="modifierScores()">Modifier</button>
+      <button onclick="reinitialiserScores()">Réinitialiser</button>
+    </div>
 
     <div id="classement">
       <h2>Classement</h2>
@@ -35,9 +40,10 @@
     </div>
   </div>
 
-  <!-- Confetti JS -->
+  <!-- Confetti & Son -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <audio id="victoire-audio" src="https://cdn.pixabay.com/audio/2022/03/15/audio_b6b2fc2cb6.mp3"></audio>
+
   <script src="script.js"></script>
 </body>
 </html>
