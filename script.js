@@ -1,29 +1,26 @@
-const joueurs = ['Flo', 'Viking', 'Matt', 'PL'];
-const pars = [72, 72, 72, 72]; // Pars pour les 4 tours
+const joueurs = ["Flo", "Matt", "PL", "Viking"];
+const pars = [72, 70, 71, 73];
 
-function createRow(joueur) {
-  const tr = document.createElement('tr');
-  let html = `<td>${joueur}</td>`;
-  for (let tour = 1; tour <= 4; tour++) {
-    html += `
-      <td><input type="number" min="0" data-joueur="${joueur}" data-tour="${tour}" /></td>
-      <td id="ecart-${joueur}-t${tour}">E</td>
+function initialiserTableau() {
+  const tbody = document.getElementById("scoreTable");
+  joueurs.forEach(joueur => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${joueur}</td>
+      <td>-</td>
+      ${pars.map((_, i) => `<td><input type="number" data-joueur="${joueur}" data-tour="${i + 1}"></td>`).join('')}
+      <td id="total-${joueur}">0</td>
+      <td id="ecart-${joueur}">E</td>
     `;
-  }
-  html += `
-    <td id="total-${joueur}">0</td>
-    <td id="ecart-${joueur}">E</td>
-  `;
-  tr.innerHTML = html;
-  return tr;
+    tbody.appendChild(tr);
+  });
 }
 
-function ajouterLignePar() {
-  const tr = document.createElement('tr');
-  tr.innerHTML = `<td><strong>Par</strong></td>` +
-    pars.map(par => `<td colspan="2"><strong>${par}</strong></td>`).join('') +
-    `<td>—</td><td>—</td>`;
-  document.getElementById('score-table').appendChild(tr);
+function validerScores() {
+  document.querySelectorAll("input").forEach(input => {
+    input.disabled = true;
+  });
+  calculerTotaux();
 }
 
 function calculerTotaux() {
@@ -35,74 +32,95 @@ function calculerTotaux() {
       const input = document.querySelector(`input[data-joueur="${joueur}"][data-tour="${tour}"]`);
       const val = parseInt(input.value) || 0;
       total += val;
-
-      const ecart = val - pars[tour - 1];
-      ecartTotal += ecart;
-
-      const ecartTour = ecart === 0 ? 'E' : (ecart > 0 ? `+${ecart}` : ecart);
-      document.getElementById(`ecart-${joueur}-t${tour}`).textContent = ecartTour;
+      ecartTotal += val - pars[tour - 1];
     }
 
     document.getElementById(`total-${joueur}`).textContent = total;
-    const ecartFinal = ecartTotal === 0 ? 'E' : (ecartTotal > 0 ? `+${ecartTotal}` : ecartTotal);
+    const ecartFinal = ecartTotal === 0 ? "E" : (ecartTotal > 0 ? `+${ecartTotal}` : ecartTotal);
     document.getElementById(`ecart-${joueur}`).textContent = ecartFinal;
   });
 
   enregistrerScores();
+  mettreAJourClassement();
 }
 
 function enregistrerScores() {
   const scores = {};
-  joueurs.forEach(joueur => {
-    scores[joueur] = {};
-    for (let tour = 1; tour <= 4; tour++) {
-      const input = document.querySelector(`input[data-joueur="${joueur}"][data-tour="${tour}"]`);
-      scores[joueur][`tour${tour}`] = input.value;
-    }
+  document.querySelectorAll("input").forEach(input => {
+    const joueur = input.dataset.joueur;
+    const tour = input.dataset.tour;
+    scores[`${joueur}-${tour}`] = input.value;
   });
-  localStorage.setItem('golfScores', JSON.stringify(scores));
+  localStorage.setItem("scoresGolf", JSON.stringify(scores));
 }
 
-function chargerScores() {
-  const data = JSON.parse(localStorage.getItem('golfScores'));
-  if (data) {
-    joueurs.forEach(joueur => {
-      for (let tour = 1; tour <= 4; tour++) {
-        const input = document.querySelector(`input[data-joueur="${joueur}"][data-tour="${tour}"]`);
-        input.value = data[joueur][`tour${tour}`] || '';
-      }
+function restaurerScores() {
+  const scores = JSON.parse(localStorage.getItem("scoresGolf"));
+  if (scores) {
+    Object.entries(scores).forEach(([key, val]) => {
+      const input = document.querySelector(`input[data-joueur="${key.split('-')[0]}"][data-tour="${key.split('-')[1]}"]`);
+      if (input) input.value = val;
     });
     calculerTotaux();
   }
 }
 
-function resetScores() {
-  localStorage.removeItem('golfScores');
-  location.reload();
+function mettreAJourClassement() {
+  const resultats = joueurs.map(joueur => {
+    const ecartText = document.getElementById(`ecart-${joueur}`).textContent;
+    const ecart = ecartText === "E" ? 0 : parseInt(ecartText);
+    return { joueur, ecart };
+  });
+
+  resultats.sort((a, b) => a.ecart - b.ecart);
+
+  const liste = document.getElementById("classement-liste");
+  liste.innerHTML = "";
+
+  resultats.forEach(({ joueur, ecart }, index) => {
+    const li = document.createElement("li");
+    const affichage = ecart === 0 ? "E" : (ecart > 0 ? `+${ecart}` : ecart);
+
+    let badge = "";
+    let classe = "";
+
+    if (index === 0) {
+      badge = "🥇";
+      classe = "podium-1 glow";
+
+      if (ecart < 0) {
+        // Confettis 🎉
+        confetti({
+          particleCount: 150,
+          spread: 100,
+          origin: { y: 0.6 }
+        });
+
+        // Son 🔊
+        const audio = document.getElementById("victoire-audio");
+        audio.currentTime = 0;
+        audio.play();
+      }
+    } else if (index === 1) {
+      badge = "🥈";
+      classe = "podium-2";
+    } else if (index === 2) {
+      badge = "🥉";
+      classe = "podium-3";
+    }
+
+    li.textContent = `${badge} ${joueur} (${affichage})`;
+    if (classe) li.className = classe;
+    liste.appendChild(li);
+  });
+
+  const totalEcart = resultats.reduce((acc, val) => acc + val.ecart, 0);
+  const texteGlobal = totalEcart === 0
+    ? "⛳ Total cumulé : Égal au par"
+    : `⛳ Total cumulé : ${totalEcart > 0 ? "+" : ""}${totalEcart} au-dessus du par`;
+  document.getElementById("total-global").textContent = texteGlobal;
 }
 
-function validerScores() {
-  document.querySelectorAll('input').forEach(input => {
-    input.disabled = true;
-  });
-}
-
-function modifierScores() {
-  document.querySelectorAll('input').forEach(input => {
-    input.disabled = false;
-  });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  const table = document.getElementById('score-table');
-  ajouterLignePar();
-  joueurs.forEach(joueur => {
-    table.appendChild(createRow(joueur));
-  });
-
-  document.querySelectorAll('input').forEach(input => {
-    input.addEventListener('input', calculerTotaux);
-  });
-
-  chargerScores();
-});
+// Initialisation
+initialiserTableau();
+restaurerScores();
