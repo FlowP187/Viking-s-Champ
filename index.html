@@ -2,13 +2,22 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Scores de Golf – Championnat</title>
+  <title>Viking’s Cup</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Scores de Golf – Championnat 4 Tours</h1>
+  <h1>Viking’s Cup</h1>
+
   <table>
     <thead>
+      <tr class="parcours">
+        <th></th>
+        <th colspan="2">Golf des Dunes</th>
+        <th colspan="2">Ocean Valley</th>
+        <th colspan="2">Pine Ridge</th>
+        <th colspan="2">Cliffs Edge</th>
+        <th></th><th></th>
+      </tr>
       <tr>
         <th>Joueur</th>
         <th>T1</th><th>É1</th>
@@ -20,6 +29,7 @@
     </thead>
     <tbody id="score-table"></tbody>
   </table>
+
   <button onclick="resetScores()">Réinitialiser les scores</button>
 
   <script src="script.js"></script>
