@@ -1,4 +1,11 @@
 body {
+  background-image: url('golf.jpg'); /* ou une URL absolue */
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
+  color: #000; /* pour garder un texte lisible */
+}
+body {
   font-family: Arial, sans-serif;
   margin: 30px;
   background: #f4f4f4;
