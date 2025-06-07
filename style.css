@@ -1,33 +1,43 @@
 body {
-  background-image: url('golf.jpg'); /* ou une URL absolue */
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  background-image: url('golf.jpg'); /* Change ce nom si besoin */
   background-size: cover;
   background-attachment: fixed;
   background-position: center;
-  color: #000; /* pour garder un texte lisible */
-}
-body {
-  font-family: Arial, sans-serif;
-  margin: 30px;
-  background: #f4f4f4;
+  background-repeat: no-repeat;
+  color: #000;
+  text-shadow: 1px 1px 1px #fff;
 }
 
 h1 {
   text-align: center;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 15px;
+  border-radius: 10px;
+  display: inline-block;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
+  background: rgba(255, 255, 255, 0.9);
   margin-top: 20px;
 }
 
 th, td {
-  padding: 10px;
+  border: 1px solid #999;
+  padding: 8px;
   text-align: center;
-  border: 1px solid #ccc;
 }
 
 input {
   width: 60px;
   text-align: center;
+}
+
+button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
 }
