@@ -3,12 +3,14 @@ const SHEET_URL = "https://script.google.com/macros/s/AKfycbzS5ljYjr3BjqlLHX_WR6
 fetch(SHEET_URL)
   .then(response => response.json())
   .then(data => {
+    console.log("Données reçues :", data);
     displayScores(data);
     displayClassement(data);
   })
   .catch(error => {
     console.error("Erreur lors de la récupération des scores :", error);
   });
+
 
 function displayScores(data) {
   const table = document.getElementById("scores-table");
