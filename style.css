@@ -1,109 +1,64 @@
 body {
-  margin: 0;
-  padding: 0;
-  font-family: Arial, sans-serif;
-  background-image: url("2C25545A-A5BB-43C4-821A-1ADD2FCD11D2.png");
+  font-family: 'Arial', sans-serif;
+  background: url('2C25545A-A5BB-43C4-821A-1ADD2FCD11D2.png') no-repeat center center fixed;
   background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-}
-
-.container {
-  background: rgba(255, 255, 255, 0.9);
-  max-width: 960px;
-  margin: 40px auto;
+  color: #fff;
+  text-align: center;
   padding: 20px;
-  border-radius: 10px;
 }
 
 h1 {
-  text-align: center;
+  font-size: 3em;
   margin-bottom: 20px;
 }
 
 table {
-  width: 100%;
+  width: 90%;
+  margin: 0 auto;
   border-collapse: collapse;
-  margin-bottom: 20px;
+  background-color: rgba(0, 0, 0, 0.6);
 }
 
 th, td {
+  border: 1px solid #fff;
   padding: 10px;
-  border: 1px solid #ccc;
-  text-align: center;
 }
 
-input[type="number"] {
+input {
   width: 60px;
-  padding: 5px;
-}
-
-.buttons {
   text-align: center;
-  margin-bottom: 20px;
+  font-size: 1em;
 }
 
-button {
-  margin: 5px;
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
+input[readonly] {
+  background-color: #444;
+  color: #ccc;
+  border: none;
 }
 
-.par {
-  font-size: 12px;
-  color: #666;
+.glow {
+  animation: glow 1s ease-in-out infinite alternate;
 }
 
-#classement {
-  background: rgba(255, 255, 255, 0.9);
+@keyframes glow {
+  from {
+    text-shadow: 0 0 5px gold, 0 0 10px gold;
+  }
+  to {
+    text-shadow: 0 0 20px gold, 0 0 30px gold;
+  }
+}
+
+#podium {
   margin-top: 30px;
-  padding: 15px;
-  border-radius: 10px;
-  width: fit-content;
-  margin-left: auto;
-  margin-right: auto;
-  box-shadow: 0 0 10px rgba(0,0,0,0.2);
-}
-
-#classement h2 {
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-#classement-liste li {
   font-size: 1.2em;
-  margin: 5px 0;
 }
 
-.global-summary {
-  margin-top: 15px;
-  font-weight: bold;
-  font-size: 1.1em;
-  text-align: center;
-}
-
-.podium-1 {
-  font-weight: bold;
-  color: gold;
-}
-
-.podium-2 {
-  font-weight: bold;
-  color: silver;
-}
-
-.podium-3 {
-  font-weight: bold;
-  color: #cd7f32;
-}
-
-@keyframes gold-glow {
-  0% { text-shadow: 0 0 5px gold, 0 0 10px gold; }
-  50% { text-shadow: 0 0 15px orange, 0 0 25px gold; }
-  100% { text-shadow: 0 0 5px gold, 0 0 10px gold; }
-}
-
-.podium-1.glow {
-  animation: gold-glow 2s infinite;
+#confetti-canvas {
+  position: fixed;
+  pointer-events: none;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
