@@ -74,12 +74,12 @@ function displayClassement(data) {
   const classementFinal = joueurs.map((j, i) => ({ nom: j, ecart: ecarts[i] }))
     .sort((a, b) => a.ecart - b.ecart);
 
-  classement.innerHTML = classementFinal.map((p, i) => {
+  classement.innerHTML = classementFinal.map((p, i, arr) => {
     let medal = '';
     if (i === 0) medal = '🥇';
     else if (i === 1) medal = '🥈';
     else if (i === 2) medal = '🥉';
-    else if (i === classementFinal.length - 1) medal = '💩';
+    else if (i === arr.length - 1) medal = '💩';
     return `
       <div class="${i === 0 ? 'glow' : ''}">
         ${medal} ${i + 1} - ${p.nom} (${p.ecart >= 0 ? '+' + p.ecart : p.ecart})
