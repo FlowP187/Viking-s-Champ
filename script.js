@@ -12,16 +12,16 @@ fetch(SHEET_URL)
 
 function displayScores(data) {
   const table = document.getElementById("scores-table");
-  const dates = data.dates;
+  table.innerHTML = ""; // reset tableau
+
   const parcours = data.golfs;
+  const dates = data.dates;
   const pars = data.pars;
 
-  // En-têtes
   const header = document.createElement("tr");
-  header.innerHTML = `<th>Joueur</th>` + dates.map((date, i) => `<th>${date}<br><small>${parcours[i]}</small></th>`).join("") + `<th>Total</th><th>Écart</th>`;
+  header.innerHTML = `<th>Joueur</th>` + dates.map((date, i) => `<th>${date}<br><small>${parcours[i] || ''}</small></th>`).join("") + `<th>Total</th><th>Écart</th>`;
   table.appendChild(header);
 
-  // Lignes par joueur
   data.joueurs.forEach((joueur, idx) => {
     const scores = data.scores[idx];
     let total = 0;
@@ -31,7 +31,7 @@ function displayScores(data) {
 
     scores.forEach((score, i) => {
       const val = score !== "" ? parseInt(score) : "";
-      const diff = val !== "" ? val - pars[i] : "";
+      const diff = val !== "" ? val - (pars[i] || 0) : "";
       total += val || 0;
       ecart += diff || 0;
       tr.innerHTML += `<td>${val !== "" ? `${val} (${diff >= 0 ? '+' : ''}${diff})` : ''}</td>`;
