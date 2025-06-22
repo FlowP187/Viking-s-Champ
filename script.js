@@ -12,8 +12,8 @@ fetch(SHEET_URL)
 
 function displayScores(data) {
   const table = document.getElementById("scores-table");
-  const parcours = ["Lacanau", "Cabot Golf Les Châteaux", "Cabot Golf Les Vignes", "Seignosse"];
-  const dates = ["20/06", "21/06", "22/06", "23/06"];
+  const dates = data.dates;
+  const parcours = data.golfs;
   const pars = data.pars;
 
   // En-têtes
