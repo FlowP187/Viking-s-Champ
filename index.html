@@ -1,55 +1,17 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Viking’s Cup</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <h1>Viking’s Cup</h1>
-
-    <table>
-      <thead>
-        <tr>
-          <th rowspan="2">Joueur</th>
-          <th rowspan="2">Par</th>
-          <th>Lacanau</th>
-          <th>Cabot Golf Les Châteaux</th>
-          <th>Cabot Golf Les Vignes</th>
-          <th>Seignosse</th>
-          <th rowspan="2">Total</th>
-          <th rowspan="2">Écart</th>
-        </tr>
-        <tr>
-          <th>26 mai 2025<br><span class="par">72</span></th>
-          <th>7 juin<br><span class="par">70</span></th>
-          <th>8 juin<br><span class="par">71</span></th>
-          <th>9 juin<br><span class="par">73</span></th>
-        </tr>
-      </thead>
-      <tbody id="scoreTable">
-        <!-- Généré par JS -->
-      </tbody>
-    </table>
-
-    <div class="buttons">
-      <button onclick="validerScores()">Valider</button>
-      <button onclick="modifierScores()">Modifier</button>
-      <button onclick="reinitialiserScores()">Réinitialiser</button>
-    </div>
-
-    <div id="classement">
-      <h2>Classement</h2>
-      <ol id="classement-liste"></ol>
-      <p id="total-global" class="global-summary"></p>
-    </div>
-  </div>
-
-  <!-- Confettis & Son -->
+  <h1>Viking’s Cup</h1>
+  <div id="table-container"></div>
+  <div id="podium"></div>
+  <audio id="victory-sound" src="https://www.soundjay.com/human/applause-8.mp3" preload="auto"></audio>
+  <canvas id="confetti-canvas"></canvas>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-  <audio id="victoire-audio" src="https://cdn.pixabay.com/audio/2022/03/15/audio_b6b2fc2cb6.mp3"></audio>
-
   <script src="script.js"></script>
 </body>
 </html>
