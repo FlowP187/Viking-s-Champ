@@ -1,4 +1,4 @@
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbzS5ljYjr3BjqlLHX_WR6bx8MjiT-91UGFb2F4bakXehLr9gKhxfEQQlKs_qIjQmxXR/exec"; // ← remplace par ton URL réelle
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbzS5ljYjr3BjqlLHX_WR6bx8MjiT-91UGFb2F4bakXehLr9gKhxfEQQlKs_qIjQmxXR/exec";
 
 fetch(SHEET_URL)
   .then(response => response.json())
@@ -12,16 +12,19 @@ fetch(SHEET_URL)
 
 function displayScores(data) {
   const table = document.getElementById("scores-table");
-  table.innerHTML = ""; // reset tableau
+  table.innerHTML = ""; // Reset table
 
-  const parcours = data.golfs;
-  const dates = data.dates;
-  const pars = data.pars;
+  // 1ère ligne header : dates
+  const headerDates = document.createElement("tr");
+  headerDates.innerHTML = `<th></th>` + data.dates.map(date => `<th>${date}</th>`).join("") + `<th>Total</th><th>Écart</th>`;
+  table.appendChild(headerDates);
 
-  const header = document.createElement("tr");
-  header.innerHTML = `<th>Joueur</th>` + dates.map((date, i) => `<th>${date}<br><small>${parcours[i] || ''}</small></th>`).join("") + `<th>Total</th><th>Écart</th>`;
-  table.appendChild(header);
+  // 2ème ligne header : golfs
+  const headerGolfs = document.createElement("tr");
+  headerGolfs.innerHTML = `<th>Parcours</th>` + data.golfs.map(golf => `<th>${golf}</th>`).join("") + `<th></th><th></th>`;
+  table.appendChild(headerGolfs);
 
+  // Lignes joueurs + scores
   data.joueurs.forEach((joueur, idx) => {
     const scores = data.scores[idx];
     let total = 0;
@@ -31,7 +34,7 @@ function displayScores(data) {
 
     scores.forEach((score, i) => {
       const val = score !== "" ? parseInt(score) : "";
-      const diff = val !== "" ? val - (pars[i] || 0) : "";
+      const diff = val !== "" ? val - data.pars[i] : "";
       total += val || 0;
       ecart += diff || 0;
       tr.innerHTML += `<td>${val !== "" ? `${val} (${diff >= 0 ? '+' : ''}${diff})` : ''}</td>`;
@@ -48,7 +51,7 @@ function displayScores(data) {
 
 function sortTable() {
   const table = document.getElementById("scores-table");
-  const rows = Array.from(table.querySelectorAll("tr")).slice(1);
+  const rows = Array.from(table.querySelectorAll("tr")).slice(2); // ignore 2 header rows
   rows.sort((a, b) => parseInt(a.dataset.ecart) - parseInt(b.dataset.ecart));
   rows.forEach(row => table.appendChild(row));
 }
@@ -67,20 +70,4 @@ function displayClassement(data) {
       🏅 ${i + 1} - ${p.nom} (${p.ecart >= 0 ? '+' + p.ecart : p.ecart})
     </div>
   `).join("");
-
-  if (classementFinal[0].ecart < 0) {
-    triggerConfetti();
-  }
-}
-
-function triggerConfetti() {
-  const confetti = document.createElement("div");
-  confetti.innerHTML = "🎉🎉🎉";
-  confetti.style.position = "fixed";
-  confetti.style.top = "20px";
-  confetti.style.left = "50%";
-  confetti.style.transform = "translateX(-50%)";
-  confetti.style.fontSize = "3em";
-  document.body.appendChild(confetti);
-  setTimeout(() => confetti.remove(), 3000);
 }
