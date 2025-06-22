@@ -1,4 +1,4 @@
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbxrNvY1hVeo9OupBOephEi-_Toh91EdBhgrqFSalmJYixXgdMLycs28v9-NTFwYUqCV/exec";
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbxWVI19MMedDEXWhKC5LJSs2J6vTWbZL5EgCdXTAm9Ix0Pp21Gu9wGP_2p4cwmL-O93/exec";
 
 fetch(SHEET_URL)
   .then(response => response.json())
