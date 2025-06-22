@@ -1,43 +1,20 @@
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbzS5ljYjr3BjqlLHX_WR6bx8MjiT-91UGFb2F4bakXehLr9gKhxfEQQlKs_qIjQmxXR/exec";
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbxxxxxx/exec"; // ← remplace par ton URL réelle
 
-document.addEventListener('DOMContentLoaded', () => {
-  fetch(SHEET_URL)
-    .then(response => response.json())
-    .then(data => {
-      console.log("Données reçues :", data);
-      displayScores(data);
-      displayClassement(data);
-    })
-    .catch(error => {
-      console.error("Erreur lors de la récupération des scores :", error);
-    });
-});
+fetch(SHEET_URL)
+  .then(response => response.json())
+  .then(data => {
+    displayScores(data);
+    displayClassement(data);
+  })
+  .catch(error => {
+    console.error("Erreur lors de la récupération des scores :", error);
+  });
 
 function displayScores(data) {
-  if (!data.joueurs || !Array.isArray(data.joueurs)) {
-    console.error("La donnée 'joueurs' est manquante ou invalide :", data.joueurs);
-    return;
-  }
-  if (!data.scores || !Array.isArray(data.scores)) {
-    console.error("La donnée 'scores' est manquante ou invalide :", data.scores);
-    return;
-  }
-  if (!data.pars || !Array.isArray(data.pars)) {
-    console.error("La donnée 'pars' est manquante ou invalide :", data.pars);
-    return;
-  }
-
   const table = document.getElementById("scores-table");
-  if (!table) {
-    console.error("Élément #scores-table non trouvé dans le DOM.");
-    return;
-  }
-
   const parcours = ["Lacanau", "Cabot Golf Les Châteaux", "Cabot Golf Les Vignes", "Seignosse"];
   const dates = ["20/06", "21/06", "22/06", "23/06"];
   const pars = data.pars;
-
-  table.innerHTML = ""; // On vide le tableau avant de remplir
 
   // En-têtes
   const header = document.createElement("tr");
@@ -78,23 +55,6 @@ function sortTable() {
 
 function displayClassement(data) {
   const classement = document.getElementById("podium");
-  if (!classement) {
-    console.error("Élément #podium non trouvé dans le DOM.");
-    return;
-  }
-  if (!data.joueurs || !Array.isArray(data.joueurs)) {
-    console.error("La donnée 'joueurs' est manquante ou invalide :", data.joueurs);
-    return;
-  }
-  if (!data.scores || !Array.isArray(data.scores)) {
-    console.error("La donnée 'scores' est manquante ou invalide :", data.scores);
-    return;
-  }
-  if (!data.pars || !Array.isArray(data.pars)) {
-    console.error("La donnée 'pars' est manquante ou invalide :", data.pars);
-    return;
-  }
-
   const joueurs = data.joueurs;
   const ecarts = data.scores.map((s, i) =>
     s.reduce((sum, val, idx) => val !== "" ? sum + (parseInt(val) - data.pars[idx]) : sum, 0)
@@ -108,19 +68,12 @@ function displayClassement(data) {
     </div>
   `).join("");
 
-  if (classementFinal[0] && classementFinal[0].ecart < 0) {
-    playVictory();
+  if (classementFinal[0].ecart < 0) {
+    triggerConfetti();
   }
 }
 
-function playVictory() {
-  const sound = document.getElementById("victory-sound");
-  if (sound) {
-    sound.play();
-  } else {
-    console.warn("Élément #victory-sound non trouvé dans le DOM.");
-  }
-
+function triggerConfetti() {
   const confetti = document.createElement("div");
   confetti.innerHTML = "🎉🎉🎉";
   confetti.style.position = "fixed";
