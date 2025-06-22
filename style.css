@@ -60,3 +60,9 @@ th, td {
     box-shadow: 0 0 20px gold;
   }
 }
+@keyframes fall {
+  to {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
