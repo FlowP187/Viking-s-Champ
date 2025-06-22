@@ -1,167 +1,97 @@
-const joueurs = ["Flo", "Matt", "PL", "Viking"];
-const pars = [72, 70, 71, 73];
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbyqFJVq9NgzgRU4vPw3eXdWBWQv_lgeL3ncnxyWflvJByvZP0wLedrx7z1Qg0B8VxSE/exec";
+const AUTHORIZED_EMAIL = "Florian.pierre91@gmail.com";
+const parByTour = [72, 72, 71, 73];
+const tourNames = ["Lacanau", "Cabot Golf Les Châteaux", "Cabot Golf Les Vignes", "Seignosse"];
+let isEditor = false;
+let data = [];
 
-function initialiserTableau() {
-  const tbody = document.getElementById("scoreTable");
-  tbody.innerHTML = "";
-  joueurs.forEach(joueur => {
-    const tr = document.createElement("tr");
-    tr.setAttribute("data-joueur", joueur);
-    tr.innerHTML = `
-      <td class="nom">${joueur}</td>
-      <td>-</td>
-      ${pars.map((_, i) => `<td><input type="number" data-joueur="${joueur}" data-tour="${i + 1}"></td>`).join('')}
-      <td id="total-${joueur}">0</td>
-      <td id="ecart-${joueur}">E</td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-function validerScores() {
-  document.querySelectorAll("input").forEach(input => {
-    input.disabled = true;
-  });
-  calculerTotaux();
-}
-
-function modifierScores() {
-  document.querySelectorAll("input").forEach(input => {
-    input.disabled = false;
-  });
-}
-
-function reinitialiserScores() {
-  if (confirm("Voulez-vous vraiment réinitialiser tous les scores ?")) {
-    document.querySelectorAll("input").forEach(input => {
-      input.value = "";
-      input.disabled = false;
+function fetchScores() {
+  fetch(SHEET_URL)
+    .then(res => res.json())
+    .then(res => {
+      data = res;
+      checkEditor();
     });
-
-    localStorage.removeItem("scoresGolf");
-
-    joueurs.forEach(joueur => {
-      document.getElementById(`total-${joueur}`).textContent = "0";
-      document.getElementById(`ecart-${joueur}`).textContent = "E";
-    });
-
-    document.getElementById("classement-liste").innerHTML = "";
-    document.getElementById("total-global").textContent = "";
-  }
 }
 
-function calculerTotaux() {
-  const scores = [];
+function checkEditor() {
+  google.script.run.withSuccessHandler(email => {
+    isEditor = (email === AUTHORIZED_EMAIL);
+    renderTable();
+  }).getActiveUserEmail?.() ?? renderTable(); // fallback for static mode
+}
 
-  joueurs.forEach(joueur => {
-    let total = 0;
-    let ecartTotal = 0;
-    let scoresRenseignés = 0;
-
-    for (let tour = 1; tour <= 4; tour++) {
-      const input = document.querySelector(`input[data-joueur="${joueur}"][data-tour="${tour}"]`);
-      const val = input.value ? parseInt(input.value) : null;
-      if (val !== null && !isNaN(val)) {
-        total += val;
-        ecartTotal += val - pars[tour - 1];
-        scoresRenseignés++;
-      }
-    }
-
-    const totalCell = document.getElementById(`total-${joueur}`);
-    const ecartCell = document.getElementById(`ecart-${joueur}`);
-
-    totalCell.textContent = scoresRenseignés > 0 ? total : "-";
-    ecartCell.textContent =
-      scoresRenseignés > 0
-        ? ecartTotal === 0
-          ? "E"
-          : (ecartTotal > 0 ? `+${ecartTotal}` : ecartTotal)
-        : "E";
-
-    scores.push({ joueur, total, ecart: scoresRenseignés > 0 ? ecartTotal : 9999 });
+function renderTable() {
+  const container = document.getElementById("table-container");
+  const headers = ["Joueur", ...tourNames, "Cumul", "Écart"];
+  const players = data.slice(1);
+  const scores = players.map(p => {
+    const raw = p.slice(1).map(s => parseInt(s) || null);
+    const total = raw.reduce((acc, val) => val !== null ? acc + val : acc, 0);
+    const ecart = raw.reduce((acc, val, i) => val !== null ? acc + (val - parByTour[i]) : acc, 0);
+    return { name: p[0], raw, total, ecart };
   });
-
-  enregistrerScores();
-  trierEtMettreAJourTableau(scores);
-  mettreAJourClassement(scores);
-}
-
-function trierEtMettreAJourTableau(scores) {
-  scores.sort((a, b) => a.ecart - b.ecart);
-  const tbody = document.getElementById("scoreTable");
-  scores.forEach(score => {
-    const ligne = document.querySelector(`tr[data-joueur="${score.joueur}"]`);
-    tbody.appendChild(ligne);
-  });
-}
-
-function enregistrerScores() {
-  const scores = {};
-  document.querySelectorAll("input").forEach(input => {
-    const joueur = input.dataset.joueur;
-    const tour = input.dataset.tour;
-    scores[`${joueur}-${tour}`] = input.value;
-  });
-  localStorage.setItem("scoresGolf", JSON.stringify(scores));
-}
-
-function restaurerScores() {
-  const scores = JSON.parse(localStorage.getItem("scoresGolf"));
-  if (scores) {
-    Object.entries(scores).forEach(([key, val]) => {
-      const [joueur, tour] = key.split("-");
-      const input = document.querySelector(`input[data-joueur="${joueur}"][data-tour="${tour}"]`);
-      if (input) input.value = val;
-    });
-    calculerTotaux();
-  }
-}
-
-function mettreAJourClassement(scores) {
-  const liste = document.getElementById("classement-liste");
-  liste.innerHTML = "";
 
   scores.sort((a, b) => a.ecart - b.ecart);
 
-  scores.forEach((s, index) => {
-    const li = document.createElement("li");
-    const affichage = s.ecart === 0 ? "E" : (s.ecart === 9999 ? "-" : (s.ecart > 0 ? `+${s.ecart}` : s.ecart));
-
-    let badge = "";
-    let classe = "";
-
-    if (s.ecart === 9999) return;
-
-    if (index === 0) {
-      badge = "🥇";
-      classe = "podium-1 glow";
-      if (s.ecart < 0) {
-        confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } });
-        const audio = document.getElementById("victoire-audio");
-        audio.currentTime = 0;
-        audio.play();
-      }
-    } else if (index === 1) {
-      badge = "🥈";
-      classe = "podium-2";
-    } else if (index === 2) {
-      badge = "🥉";
-      classe = "podium-3";
-    }
-
-    li.textContent = `${badge} ${s.joueur} (${affichage})`;
-    if (classe) li.className = classe;
-    liste.appendChild(li);
+  let html = `<table><thead><tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr></thead><tbody>`;
+  scores.forEach((p, rowIdx) => {
+    html += `<tr${rowIdx === 0 ? ' class="glow"' : ''}><td>${p.name}</td>`;
+    p.raw.forEach((s, i) => {
+      const val = s !== null ? s : "";
+      html += `<td><input type="number" data-player="${p.name}" data-tour="${i}" value="${val}" ${isEditor ? '' : 'readonly'} /></td>`;
+    });
+    html += `<td>${p.total}</td><td>${p.ecart > 0 ? "+" : ""}${p.ecart}</td></tr>`;
   });
+  html += "</tbody></table>";
 
-  const totalEcart = scores.reduce((acc, s) => acc + (s.ecart === 9999 ? 0 : s.ecart), 0);
-  const texteGlobal = totalEcart === 0
-    ? "⛳ Total cumulé : Égal au par"
-    : `⛳ Total cumulé : ${totalEcart > 0 ? "+" : ""}${totalEcart} au-dessus du par`;
-  document.getElementById("total-global").textContent = texteGlobal;
+  if (isEditor) {
+    html += `<button onclick="saveScores()">Valider</button>`;
+  }
+
+  container.innerHTML = html;
+  updatePodium(scores);
+  maybeCelebrate(scores[0].ecart);
 }
 
-// Initialisation
-initialiserTableau();
-restaurerScores();
+function updatePodium(scores) {
+  const podium = document.getElementById("podium");
+  const medals = ["🥇", "🥈", "🥉"];
+  podium.innerHTML = `<h2>Classement</h2><ol>${
+    scores.slice(0, 3).map((p, i) => `<li>${medals[i]} ${p.name}</li>`).join("")
+  }</ol>`;
+}
+
+function saveScores() {
+  const inputs = document.querySelectorAll("input[type='number']");
+  const players = [...new Set([...inputs].map(i => i.dataset.player))];
+  const toSend = players.map(p => {
+    const playerRow = [p];
+    for (let t = 0; t < 4; t++) {
+      const input = document.querySelector(`input[data-player="${p}"][data-tour="${t}"]`);
+      playerRow.push(input?.value || "");
+    }
+    return playerRow;
+  });
+
+  fetch(SHEET_URL, {
+    method: "POST",
+    body: JSON.stringify(toSend),
+    headers: { "Content-Type": "application/json" }
+  }).then(() => fetchScores());
+}
+
+function maybeCelebrate(ecart) {
+  if (ecart < 0) {
+    const canvas = document.getElementById("confetti-canvas");
+    const sound = document.getElementById("victory-sound");
+    sound.play();
+    confetti.create(canvas, { resize: true, useWorker: true })({
+      particleCount: 150,
+      spread: 80,
+      origin: { y: 0.6 }
+    });
+  }
+}
+
+window.onload = fetchScores;
