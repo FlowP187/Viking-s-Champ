@@ -1,7 +1,8 @@
 // URL de ton script Apps Script
-const sheetUrl = "https://script.google.com/macros/s/AKfycbxWVI19MMedDEXWhKC5LJSs2J6vTWbZL5EgCdXTAm9Ix0Pp21Gu9wGP_2p4cwmL-O93/exec";
+const url = "https://script.google.com/macros/s/AKfycbxWVI19MMedDEXWhKC5LJSs2J6vTWbZL5EgCdXTAm9Ix0Pp21Gu9wGP_2p4cwmL-O93/exec";
 
-fetch(sheetUrl)
+// Récupère les données depuis Google Sheets
+fetch(url)
   .then(response => response.json())
   .then(data => {
     console.log("Données reçues :", data);
@@ -11,58 +12,94 @@ fetch(sheetUrl)
     console.error("Erreur lors de la récupération des scores :", error);
   });
 
+// Affiche les scores dans le tableau HTML
 function displayScores(data) {
   const table = document.getElementById("scores-table");
   table.innerHTML = "";
 
-  // En-tête
-  const thead = document.createElement("thead");
+  // Crée l'en-tête avec les dates
   const headerRow = document.createElement("tr");
+  const emptyHeader = document.createElement("th");
+  headerRow.appendChild(emptyHeader);
+
+  data.dates.forEach(date => {
+    const th = document.createElement("th");
+    th.textContent = date;
+    headerRow.appendChild(th);
+  });
+
+  table.appendChild(headerRow);
+
+  // Crée la ligne avec les noms de golfs
   const golfRow = document.createElement("tr");
+  const golfLabel = document.createElement("td");
+  golfLabel.textContent = "Golf";
+  golfRow.appendChild(golfLabel);
 
-  headerRow.innerHTML = `<th>Joueur</th>`;
-  golfRow.innerHTML = `<th>Golf</th>`;
-
-  data.pars.forEach((par, index) => {
-    const date = new Date(data.dates[index]);
-    const formattedDate = date.toLocaleDateString("fr-FR");
-    headerRow.innerHTML += `<th>${formattedDate}</th>`;
-    golfRow.innerHTML += `<th>${data.golfs[index]}</th>`;
+  data.golfs.forEach(golf => {
+    const td = document.createElement("td");
+    td.textContent = golf;
+    golfRow.appendChild(td);
   });
 
-  thead.appendChild(headerRow);
-  thead.appendChild(golfRow);
-  table.appendChild(thead);
+  table.appendChild(golfRow);
 
-  // Corps du tableau
-  const tbody = document.createElement("tbody");
+  // Crée les lignes des joueurs
+  data.joueurs.forEach((joueur, i) => {
+    const row = document.createElement("tr");
+    const nameCell = document.createElement("td");
+    nameCell.textContent = joueur;
+    row.appendChild(nameCell);
 
-  const cumuls = data.joueurs.map((joueur, i) => {
-    const scores = data.scores[i];
-    const total = scores.reduce((acc, val) => acc + (parseInt(val) || 0), 0);
-    return { joueur, scores, total };
-  });
-
-  // Tri des scores cumulés croissants
-  cumuls.sort((a, b) => a.total - b.total);
-
-  cumuls.forEach((entry, index) => {
-    const tr = document.createElement("tr");
-
-    let medal = "";
-    if (index === 0) medal = "🥇";
-    else if (index === 1) medal = "🥈";
-    else if (index === 2) medal = "🥉";
-    else if (index === cumuls.length - 1) medal = "💩";
-
-    tr.innerHTML = `<td>${medal} ${entry.joueur}</td>`;
-
-    entry.scores.forEach(score => {
-      tr.innerHTML += `<td>${score}</td>`;
+    data.scores.forEach(tour => {
+      const td = document.createElement("td");
+      td.textContent = tour[i] || "";
+      row.appendChild(td);
     });
 
-    tbody.appendChild(tr);
+    table.appendChild(row);
   });
 
-  table.appendChild(tbody);
+  // Ligne du par
+  const parRow = document.createElement("tr");
+  const parLabel = document.createElement("td");
+  parLabel.textContent = "Par";
+  parRow.appendChild(parLabel);
+
+  data.pars.forEach(par => {
+    const td = document.createElement("td");
+    td.textContent = par || "";
+    parRow.appendChild(td);
+  });
+
+  table.appendChild(parRow);
+
+  updatePodium(data.joueurs, data.scores, data.pars);
+}
+
+// Classement avec médailles et 💩 pour le dernier
+function updatePodium(joueurs, scores, pars) {
+  const podiumDiv = document.getElementById("podium");
+  podiumDiv.innerHTML = "";
+
+  const totalScores = joueurs.map((joueur, i) => {
+    const total = scores.reduce((sum, tour) => {
+      const val = parseInt(tour[i]);
+      return sum + (isNaN(val) ? 0 : val);
+    }, 0);
+    return { joueur, total };
+  });
+
+  totalScores.sort((a, b) => a.total - b.total);
+
+  totalScores.forEach((entry, index) => {
+    const span = document.createElement("span");
+    if (index === 0) span.textContent = `🥇 ${entry.joueur}`;
+    else if (index === 1) span.textContent = `🥈 ${entry.joueur}`;
+    else if (index === 2) span.textContent = `🥉 ${entry.joueur}`;
+    else if (index === totalScores.length - 1) span.textContent = `💩 ${entry.joueur}`;
+    else span.textContent = entry.joueur;
+
+    podiumDiv.appendChild(span);
+  });
 }
