@@ -17,6 +17,7 @@ function formatDate(dateString) {
   return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : dateString;
 }
 
+
 function displayScores(data) {
   const table = document.getElementById("scores-table");
   table.innerHTML = ""; // Reset table
