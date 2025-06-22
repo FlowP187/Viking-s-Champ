@@ -1,91 +1,89 @@
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbyqFJVq9NgzgRU4vPw3eXdWBWQv_lgeL3ncnxyWflvJByvZP0wLedrx7z1Qg0B8VxSE/exec";
 
-const parcours = ["Lacanau", "Cabot Les Châteaux", "Cabot Les Vignes", "Seignosse"];
-const dates = ["20 juin", "21 juin", "22 juin", "23 juin"];
-const par = [72, 73, 70, 71];
-
 fetch(SHEET_URL)
-  .then(res => res.json())
+  .then(response => response.json())
   .then(data => {
-    const joueurs = data.joueurs;
-    const scores = data.scores;
-
-    const table = document.getElementById("scoreTable");
-    const thead = document.createElement("thead");
-    const header1 = document.createElement("tr");
-    header1.innerHTML = `<th>Joueur</th>` + parcours.map(p => `<th colspan="2">${p}</th>`).join('') + `<th>Total</th>`;
-    const header2 = document.createElement("tr");
-    header2.innerHTML = `<th></th>` + dates.map((d, i) => `<th>Score</th><th>+/- Par</th>`).join('') + `<th></th>`;
-    thead.appendChild(header1);
-    thead.appendChild(header2);
-    table.appendChild(thead);
-
-    const tbody = document.createElement("tbody");
-    joueurs.forEach((joueur, j) => {
-      let tr = document.createElement("tr");
-      let total = 0;
-      let totalDiff = 0;
-      tr.innerHTML = `<td>${joueur}</td>`;
-
-      for (let t = 0; t < 4; t++) {
-        const val = scores[j][t];
-        const parDiff = val !== "" ? val - par[t] : "";
-        tr.innerHTML += `
-          <td>${val}</td>
-          <td>${parDiff !== "" ? (parDiff >= 0 ? "+" : "") + parDiff : ""}</td>
-        `;
-        if (val !== "") {
-          total += parseInt(val);
-          totalDiff += parseInt(parDiff);
-        }
-      }
-
-      tr.innerHTML += `<td>${totalDiff >= 0 ? "+" : ""}${totalDiff}</td>`;
-      tbody.appendChild(tr);
-    });
-
-    table.appendChild(tbody);
-
-    // Tri et classement
-    const rows = Array.from(tbody.querySelectorAll("tr"));
-    rows.sort((a, b) => {
-      const aVal = parseInt(a.lastChild.textContent) || 0;
-      const bVal = parseInt(b.lastChild.textContent) || 0;
-      return aVal - bVal;
-    });
-    rows.forEach(row => tbody.appendChild(row));
-
-    // Podium
-    const podium = document.getElementById("podium");
-    const places = ["🥇", "🥈", "🥉"];
-    rows.slice(0, 3).forEach((row, i) => {
-      const name = row.firstChild.textContent;
-      const div = document.createElement("div");
-      div.classList.add("podium");
-      div.innerHTML = `${places[i]} ${name}`;
-      if (i === 0) div.classList.add("winner");
-      podium.appendChild(div);
-    });
-
-    // Confettis
-    if (parseInt(rows[0].lastChild.textContent) < 0) {
-      confetti();
-      const audio = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-small-group-cheer-and-applause-518.mp3");
-      audio.play();
-    }
+    displayScores(data);
+    displayClassement(data);
+  })
+  .catch(error => {
+    console.error("Erreur lors de la récupération des scores :", error);
   });
 
-function confetti() {
-  for (let i = 0; i < 100; i++) {
-    const conf = document.createElement("div");
-    conf.style.position = "fixed";
-    conf.style.left = Math.random() * 100 + "vw";
-    conf.style.top = "-10px";
-    conf.style.width = "10px";
-    conf.style.height = "10px";
-    conf.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
-    conf.style.animation = `fall ${2 + Math.random() * 3}s linear ${Math.random()}s forwards`;
-    document.body.appendChild(conf);
-    setTimeout(() => conf.remove(), 6000);
+function displayScores(data) {
+  const table = document.getElementById("scores-table");
+  const parcours = ["Lacanau", "Cabot Golf Les Châteaux", "Cabot Golf Les Vignes", "Seignosse"];
+  const dates = ["20/06", "21/06", "22/06", "23/06"];
+  const pars = data.pars;
+
+  // En-têtes
+  const header = document.createElement("tr");
+  header.innerHTML = `<th>Joueur</th>` + dates.map((date, i) => `<th>${date}<br><small>${parcours[i]}</small></th>`).join("") + `<th>Total</th><th>Écart</th>`;
+  table.appendChild(header);
+
+  // Lignes par joueur
+  data.joueurs.forEach((joueur, idx) => {
+    const scores = data.scores[idx];
+    let total = 0;
+    let ecart = 0;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${joueur}</td>`;
+
+    scores.forEach((score, i) => {
+      const val = score !== "" ? parseInt(score) : "";
+      const diff = val !== "" ? val - pars[i] : "";
+      total += val || 0;
+      ecart += diff || 0;
+      tr.innerHTML += `<td>${val !== "" ? `${val} (${diff >= 0 ? '+' : ''}${diff})` : ''}</td>`;
+    });
+
+    tr.innerHTML += `<td>${total}</td><td>${ecart >= 0 ? '+' + ecart : ecart}</td>`;
+    tr.dataset.total = total;
+    tr.dataset.ecart = ecart;
+    table.appendChild(tr);
+  });
+
+  sortTable();
+}
+
+function sortTable() {
+  const table = document.getElementById("scores-table");
+  const rows = Array.from(table.querySelectorAll("tr")).slice(1);
+  rows.sort((a, b) => parseInt(a.dataset.ecart) - parseInt(b.dataset.ecart));
+  rows.forEach(row => table.appendChild(row));
+}
+
+function displayClassement(data) {
+  const classement = document.getElementById("podium");
+  const joueurs = data.joueurs;
+  const ecarts = data.scores.map((s, i) =>
+    s.reduce((sum, val, idx) => val !== "" ? sum + (parseInt(val) - data.pars[idx]) : sum, 0)
+  );
+  const classementFinal = joueurs.map((j, i) => ({ nom: j, ecart: ecarts[i] }))
+    .sort((a, b) => a.ecart - b.ecart);
+
+  classement.innerHTML = classementFinal.map((p, i) => `
+    <div class="${i === 0 ? 'glow' : ''}">
+      🏅 ${i + 1} - ${p.nom} (${p.ecart >= 0 ? '+' + p.ecart : p.ecart})
+    </div>
+  `).join("");
+
+  if (classementFinal[0].ecart < 0) {
+    playVictory();
   }
+}
+
+function playVictory() {
+  const sound = document.getElementById("victory-sound");
+  sound.play();
+
+  const confetti = document.createElement("div");
+  confetti.innerHTML = "🎉🎉🎉";
+  confetti.style.position = "fixed";
+  confetti.style.top = "20px";
+  confetti.style.left = "50%";
+  confetti.style.transform = "translateX(-50%)";
+  confetti.style.fontSize = "3em";
+  document.body.appendChild(confetti);
+  setTimeout(() => confetti.remove(), 3000);
 }
