@@ -94,12 +94,14 @@ function updatePodium(joueurs, scores, pars) {
 
   totalScores.forEach((entry, index) => {
     const span = document.createElement("span");
-    if (index === 0) span.textContent = `🥇 ${entry.joueur}`;
-    else if (index === 1) span.textContent = `🥈 ${entry.joueur}`;
-    else if (index === 2) span.textContent = `🥉 ${entry.joueur}`;
-    else if (index === totalScores.length - 1) span.textContent = `💩 ${entry.joueur}`;
-    else span.textContent = entry.joueur;
+    let label = entry.joueur;
 
+    if (index === 0) label = `🥇 ${entry.joueur}`;
+    else if (index === 1) label = `🥈 ${entry.joueur}`;
+    else if (index === 2) label = `🥉 ${entry.joueur}`;
+    else if (index === totalScores.length - 1) label = `💩 ${entry.joueur}`;
+
+    span.textContent = label;
     podiumDiv.appendChild(span);
   });
 }
