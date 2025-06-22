@@ -22,21 +22,18 @@ function displayScores(data) {
   const table = document.getElementById("scores-table");
   table.innerHTML = ""; // Reset table
 
-  // Log pour debug
   console.log("Dates brutes :", data.dates);
 
   const parcours = data.golfs || [];   // noms des golfs (ligne 2)
   const dates = (data.dates || []).map(formatDate); // dates formatées
   const pars = data.pars || [];
 
-  // En-têtes
   const header = document.createElement("tr");
   header.innerHTML = `<th>Joueur</th>` +
     dates.map((date, i) => `<th>${date}<br><small>${parcours[i] || ""}</small></th>`).join("") +
     `<th>Total</th><th>Écart</th>`;
   table.appendChild(header);
 
-  // Lignes par joueur
   data.joueurs.forEach((joueur, idx) => {
     const scores = data.scores[idx] || [];
     let total = 0;
@@ -77,9 +74,16 @@ function displayClassement(data) {
   const classementFinal = joueurs.map((j, i) => ({ nom: j, ecart: ecarts[i] }))
     .sort((a, b) => a.ecart - b.ecart);
 
-  classement.innerHTML = classementFinal.map((p, i) => `
-    <div class="${i === 0 ? 'glow' : ''}">
-      🏅 ${i + 1} - ${p.nom} (${p.ecart >= 0 ? '+' + p.ecart : p.ecart})
-    </div>
-  `).join("");
+  classement.innerHTML = classementFinal.map((p, i) => {
+    let medal = '';
+    if (i === 0) medal = '🥇';
+    else if (i === 1) medal = '🥈';
+    else if (i === 2) medal = '🥉';
+    else if (i === classementFinal.length - 1) medal = '💩';
+    return `
+      <div class="${i === 0 ? 'glow' : ''}">
+        ${medal} ${i + 1} - ${p.nom} (${p.ecart >= 0 ? '+' + p.ecart : p.ecart})
+      </div>
+    `;
+  }).join("");
 }
